@@ -1,0 +1,37 @@
+//权值线段树
+
+int n, m, a[maxn],b[maxn];
+int tr[maxn << 2];
+
+void pushup(int u) {
+    tr[u] = tr[u << 1] + tr[u << 1 | 1];
+}
+void change(int u, int l, int r, int x) {
+    if (l == r) { tr[u]++; return; }
+    int mid = (l + r) / 2;
+    if (x <= mid)change(u << 1, l, mid, x);
+    else change(u << 1 | 1, mid + 1, r, x);
+    pushup(u);
+}
+ll query(int u, int l, int r, int x, int y) {
+    if (x <= l && r <= y)return tr[u];
+    ll s = 0;
+    int mid = (l + r) / 2;
+    if (x <= mid)s += query(u << 1, l, mid, x, y);
+    if(y>mid)s += query(u << 1 | 1, mid + 1, r, x, y);
+    return s;
+}
+
+
+void solve() {
+    cin >> n;
+    for (int i = 1; i <= n; i++)cin >> a[i], b[i] = a[i];
+    sort(b + 1, b + 1 + n);
+    ll ans = 0;
+    for (int i = 1; i <= n; i++) {
+        int id = lower_bound(b + 1, b + 1 + n, a[i]) - b;
+        change(1, 1, n, id);
+        ans += query(1, 1, n, id + 1, n);
+    }
+    cout << ans << endl;
+}

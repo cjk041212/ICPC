@@ -1,0 +1,56 @@
+//线段树
+
+int tr[maxn << 2],lazy[maxn << 2];
+void pushup(int u) {
+	tr[u] = tr[u << 1] + tr[u << 1 | 1];
+}
+void pushdown(int u, int l, int r) {
+	if (!lazy[u])return;
+	int mid = (l + r) / 2;
+	tr[u << 1] = lazy[u] * (mid - l + 1);
+	tr[u << 1 | 1] = lazy[u] * (r - mid);
+	lazy[u << 1] = lazy[u];
+	lazy[u << 1 | 1] = lazy[u];
+	lazy[u] = 0;
+}
+void build(int u, int l, int r) {
+	if (l == r) { tr[u] = 1; return; }
+	lazy[u] = 0;
+	int mid = (l + r) / 2;
+	build(u << 1, l, mid);
+	build(u << 1 | 1, mid + 1, r);
+	pushup(u);
+}
+
+void update(int u, int l, int r, int L, int R,int val) {
+	if (l > R || r < L)return;
+	if (L <= l && R >= r)
+	{
+		lazy[u] = val, tr[u] = val * (r - l + 1);
+		return;
+	}
+	int mid = (l + r) / 2;
+	pushdown(u, l, r);
+	update(u << 1, l, mid, L, R, val);
+	update(u << 1 | 1, mid + 1, r, L, R, val);
+	pushup(u);
+}
+
+int query(int u, int l, int r, int L, int R) {
+	if (l > R || r < L)return 0;
+	if (L <= l && R >= r)return tr[u];
+	int mid = (l + r) / 2;
+	pushdown(u, l, r);
+	return query(u << 1, l, mid, L, R) + query(u << 1 | 1, mid + 1, r, L, R);
+}
+
+void solve() {
+	int n, q; cin >> n >> q;
+	build(1, 1, n);
+	while (q--) {
+		int x, y, z;
+		cin >> x >> y >> z;
+		update(1, 1, n, x, y, z);
+	}
+	cout << query(1, 1, n, 1, n) << endl;
+}

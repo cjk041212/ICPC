@@ -1,0 +1,92 @@
+//虚树
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long 
+const int N=250005;
+const int inf=1e14;
+
+struct edge{
+	int v,w,next;
+}e[N<<1];
+int n,m,head[N],cnt;
+int ask[N],dfn[N],dfncnt,premin[N],s[N],stop;
+int siz[N],fa[N],top[N],son[N],dep[N];
+
+void add(int u,int v,int w){
+	e[++cnt]=(edge){v,w,head[u]};
+	head[u]=cnt;
+}
+
+bool cmp(int a,int b){return dfn[a]<dfn[b];}
+
+void dfs1(int u,int father){
+	siz[u]=1,fa[u]=father,dep[u]=dep[father]+1;
+	for(int i=head[u];i;i=e[i].next){
+		int v=e[i].v,w=e[i].w;
+		if(v==father)continue;
+		premin[v]=min(premin[u],w);
+		dfs1(v,u);
+		siz[u]+=siz[v];
+		if(siz[son[u]]<siz[v])son[u]=v;
+	}
+}
+
+void dfs2(int u,int tpp){
+	top[u]=tpp,dfn[u]=++dfncnt;
+	if(son[u])dfs2(son[u],tpp);
+	for(int i=head[u];i;i=e[i].next){
+		int v=e[i].v;
+		if(v!=fa[u]&&v!=son[u])dfs2(v,v);
+	}
+}
+int LCA(int x,int y){
+	while(top[x]!=top[y]){
+		if(dep[top[x]]>=dep[top[y]])x=fa[top[x]];
+		else y=fa[top[y]];
+	}
+	return dep[x]<dep[y]?x:y;
+}
+
+vector<int>G[N];
+
+void push(int x){
+	if(stop==1){s[++stop]=x;return;}
+	int lca=LCA(x,s[stop]);
+	if(lca==s[stop])return;
+	while(stop>1&&dfn[s[stop-1]]>=dfn[lca])G[s[stop-1]].push_back(s[stop]),stop--;
+	if(s[stop]!=lca)G[lca].push_back(s[stop]),s[stop]=lca;
+	s[++stop]=x;
+}
+
+int dp(int u){
+	if(G[u].size()==0)return premin[u];
+	int temp=0;
+	for(int i=0;i<(int)G[u].size();i++)temp+=dp(G[u][i]);
+	G[u].clear();
+	return min(premin[u],temp);
+}
+
+signed main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cin>>n;
+	for(int i=1;i<n;i++){
+		int u,v,w;
+		cin>>u>>v>>w;
+		add(u,v,w);add(v,u,w);
+	}
+	premin[1]=inf;
+	dfs1(1,0);
+	dfs2(1,1);
+	int q;cin>>q;
+	while(q--){
+		cin>>m;
+		for(int i=1;i<=m;i++)cin>>ask[i];
+		sort(ask+1,ask+m+1,cmp);
+		s[stop=1]=1;
+		for(int i=1;i<=m;i++)push(ask[i]);
+		while(stop>0)G[s[stop-1]].push_back(s[stop]),stop--;
+		cout<<dp(1)<<endl;
+	}
+}

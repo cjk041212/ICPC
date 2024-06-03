@@ -1,0 +1,35 @@
+//tarjan割点
+
+int dfn[maxn], low[maxn], dfncnt,cut[maxn],cutcnt;
+void tarjan(int u, int fa) {
+	dfn[u] = low[u] = ++dfncnt;
+	int child = 0;
+	for (int i = head[u]; i; i = e[i].next) {
+		int v = e[i].to;
+		if (!dfn[v]) {
+			tarjan(v, u);
+			low[u] = min(low[u], low[v]);
+			if (low[v] >= dfn[u])child++;
+		}
+		else if (v != fa)low[u] = min(low[u], dfn[v]);
+	}
+	if (fa == u && child >= 2 || u != fa && child) {
+		cut[u] = 1;
+		cutcnt++;
+	}
+}
+void solve() {
+	int n, m; cin >> n >> m;
+	for (int i = 0; i <= n; i++)head[i] = 0;
+	for (int i = 0; i < m; i++) {
+		int u, v; cin >> u >> v;
+		addedge(u, v);
+		addedge(v, u);
+	}
+	for (int i = 1; i <= n; i++) {
+		if (!dfn[i])tarjan(i, i);
+	}
+	cout << cutcnt << endl;
+	for (int i = 1; i <= n; i++)
+		if (cut[i])cout << i << ' ';
+}

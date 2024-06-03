@@ -1,0 +1,13 @@
+//中国剩余定理CRT
+
+//x≡ai(mod bi),求x
+ll CRT(int n, ll* ai, ll* bi) {
+	ll M = 1, ans = 0;
+	for (int i = 1; i <= n; i++) M = M * bi[i];
+	for (int i = 1; i <= n; i++) {
+		ll a = M / bi[i], b = bi[i], x, y;
+		exgcd(a, b, x, y);
+		ans = (ans + ai[i] * a * x % M) % M;
+	}
+	return (ans % M + M) % M;
+}

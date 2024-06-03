@@ -1,0 +1,28 @@
+//最小表示法
+
+int n;
+int s[maxn];
+int getmin() {
+	int i = 0, j = 1, k = 0, t;
+	while (i < n && j < n && k < n) {
+		t = s[(i + k) % n] - s[(j + k) % n];
+		if (!t)k++;
+		else {
+			if (t > 0)i += k + 1;
+			else j += k + 1;
+			if (i == j)j++;
+			k = 0;
+		}
+	}
+	return min(i, j);
+}
+void solve() {
+	cin >> n;
+	for (int i = 0; i < n; i++) {
+		cin >> s[i];
+	}
+	int ans = getmin();
+	for (int i = 0; i < n; i++)cout << s[(i + ans) % n] << ' ';
+	cout << endl;
+
+}

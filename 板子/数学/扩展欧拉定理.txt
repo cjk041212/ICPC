@@ -1,0 +1,85 @@
+//扩展欧拉定理
+
+//快读记得把ios;:sync关掉
+inline ll read(ll m) {
+    register ll x = 0, f = 0; char ch = getchar();
+    while (!isdigit(ch)) ch = getchar();
+    while (isdigit(ch)) {
+        x = x * 10 + ch - '0';
+        if (x >= m) f = 1;
+        x %= m; ch = getchar();
+    }
+    return x + (f == 1 ? m : 0);
+}
+
+//单点欧拉函数
+int euler_phi(int n) {
+    int ans = n;
+    for (int i = 2; i * i <= n; i++)
+        if (n % i == 0) {
+            ans = ans / i * (i - 1);
+            while (n % i == 0) n /= i;
+        }
+    if (n > 1) ans = ans / n * (n - 1);
+    return ans;
+}
+
+//a^b mod m
+void solve() {
+    int a, m; cin >> a >> m;
+    int b = read(euler_phi(m));
+    cout << ksm(a, b, m) << "\n";
+}
+
+//l，r幂次
+//单点欧拉函数
+map<int, int>mp;
+int euler_phi(int n) {
+    if (mp.count(n))return mp[n];
+    int ans = n, z = n;
+    for (int i = 2; i * i <= n; i++)
+        if (n % i == 0) {
+            ans = ans / i * (i - 1);
+            while (n % i == 0) n /= i;
+        }
+    if (n > 1) ans = ans / n * (n - 1);
+    return mp[z] = ans;
+}
+int a[maxn];
+int calc(int l, int r, int m) {
+    if (l == r)return (a[l] + m) % m;
+    if (m == 1)return 1; 
+    return ksm(a[l], calc(l + 1, r, euler_phi(m)), m);
+}
+void solve() {
+    int n, m; cin >> n >> m;
+    for (int i = 1; i <= n; i++)cin >> a[i];
+    int q; cin >> q;
+    while (q--) {
+        int l, r; cin >> l >> r;
+        cout << calc(l, r, m) % m << "\n";
+    }
+}
+//2的无穷次
+//单点欧拉函数
+map<int, int>mp;
+int euler_phi(int n) {
+    if (mp.count(n))return mp[n];
+    int ans = n, z = n;
+    for (int i = 2; i * i <= n; i++)
+        if (n % i == 0) {
+            ans = ans / i * (i - 1);
+            while (n % i == 0) n /= i;
+        }
+    if (n > 1) ans = ans / n * (n - 1);
+    return mp[z] = ans;
+}
+int calc(int m) {
+    if (m == 1)return 1;
+    int phi = euler_phi(m);
+    return ksm(2, calc(phi) + phi, m);
+}
+void solve() {
+    int p; cin >> p;
+    cout << calc(p) % p << "\n";
+}

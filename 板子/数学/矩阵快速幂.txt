@@ -1,0 +1,24 @@
+//矩阵快速幂
+
+void add(int& x, int y) {
+	(x += y) >= mod && (x -= mod);
+}
+struct Matrix {
+	int n, A[N][N];
+	Matrix(int _n = 0) { n = _n, memset(A, 0, sizeof(A)); }
+	void operator ~ () {
+		for (int i = 0; i < n; ++i) A[i][i] = 1;
+	}
+	Matrix operator * (const Matrix& b) const {
+		Matrix ret(n);
+		for (int i = 0; i < n; ++i) for (int j = 0; j < n; ++j) for (int k = 0; k < n; ++k) {
+			add(ret.A[i][k], 1LL * A[i][j] * b.A[j][k] % mod);
+		}
+		return ret;
+	}
+	Matrix operator ^ (const long long& b) const {
+		Matrix ret(n), x = *this; ~ret;
+		for (long long p = b; p; p >>= 1, x = x * x) if (p & 1) ret = ret * x;
+		return ret;
+	}
+};

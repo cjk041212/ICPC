@@ -1,0 +1,74 @@
+//dsu on tree
+
+
+int son[maxn],siz[maxn],col[maxn],cnt[maxn],sum=0,ans[maxn];
+void dfs1(int u,int fa){
+	siz[u]=1;
+	for(int i=head[u];i;i=e[i].next){
+		int v=e[i].to;
+		if(v==fa)continue;
+		dfs1(v,u);
+		if(siz[son[u]]<siz[v])son[u]=v;
+		siz[u]+=siz[v];
+	}
+}
+void add(int u,int fa,int son){
+	if(!cnt[col[u]])sum++;
+	cnt[col[u]]++;
+	for(int i=head[u];i;i=e[i].next){
+		int v=e[i].to;
+		if(v==fa||v==son)continue;
+		add(v,u,son);	
+	}
+}
+
+void sub(int u,int fa){
+	cnt[col[u]]--;
+	for(int i=head[u];i;i=e[i].next){
+		int v=e[i].to;
+		if(v==fa)continue;
+		sub(v,u);
+	}
+}
+
+void dfs2(int u,int fa,int keep){
+	for(int i=head[u];i;i=e[i].next){
+		int v=e[i].to;
+		if(v==son[u]||v==fa)continue;
+		dfs2(v,u,0);
+	}	
+	if(son[u])dfs2(son[u],u,1);
+	add(u,fa,son[u]);
+	ans[u]=sum;	
+	if(!keep)sub(u,fa),sum=0,memset(cnt,0,sizeof(cnt));
+}
+
+void solve() {
+	int n;cin>>n;
+	for(int i=1;i<n;i++){
+		int u,v;cin>>u>>v;
+		addedge(u,v);
+		addedge(v,u);
+	}
+	for(int i=1;i<=n;i++)cin>>col[i];
+	dfs1(1,0);
+	dfs2(1,0,1);
+	int q;cin>>q;
+	while(q--){
+		int k;cin>>k;
+		cout<<ans[k]<<endl;
+	}
+}
+
+
+signed main()
+{
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	//cout << fixed << setprecision(2);
+	int t = 1;
+	//cin >> t;
+	//init();
+	while (t--)
+		solve();
+}

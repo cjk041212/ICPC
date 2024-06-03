@@ -1,0 +1,5 @@
+//并查集
+
+int fa[maxn];
+int find(int x) { return fa[x] == x ? x : fa[x] = find(fa[x]); }
+void merge(int x, int y) {fa[find(x)] = find(y);}

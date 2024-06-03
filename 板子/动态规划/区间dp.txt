@@ -1,0 +1,9 @@
+//区间dp
+
+    for (int len = 1; len <= n; len++)
+        for (int i = 1; i <= n - len + 1; i++) {
+            int j = i + len - 1;
+            for (int k = i; k <= j; k++)
+                dp[i][j] = min(dp[i][j], dp[i][k - 1] + dp[k + 1][j] + a[k] + b[i - 1] + b[j + 1]);
+        }
+    cout << dp[1][n] << endl;

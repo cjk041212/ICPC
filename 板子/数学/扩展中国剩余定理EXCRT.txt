@@ -1,0 +1,31 @@
+//扩展中国剩余定理EXCRT
+
+ll mul(ll a, ll b, ll mod) { ll res = 0; while (b) { if (b & 1) res = (res + a) % mod; a = (a + a) % mod; b >>= 1; }return res; }
+
+ll exgcd(ll a, ll b, ll& x, ll& y) {
+	if (b == 0) { x = 1; y = 0; return a; }
+	ll d = exgcd(b, a % b, y, x);
+	y -= (a / b) * x;
+	return d;
+}
+/*通解
+x = x0 + (b/gcd)*t
+y = y0 – (a/gcd)*t (t∈Z)
+*/
+
+//x≡ai(mod bi),求x
+ll EXCRT(int n, ll* ai, ll* bi) {
+	ll M = 1, ans = 0, x, y;
+	for (int i = 1; i <= n; i++) {
+		ll a = M, b = bi[i], c = (ai[i] - ans % b + b) % b;
+		ll gcd = exgcd(a, b, x, y), bg = b / gcd;
+		if (c % gcd)return -1;//无解
+		x = mul(x, c / gcd, bg);
+		ans += x * M;
+		M *= bg;
+		ans = (ans % M + M) % M;
+	}
+	ans=(ans % M + M) % M;
+	if (ans == 0)return ans = M;
+	else return ans;
+}

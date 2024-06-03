@@ -1,0 +1,119 @@
+//最小圆覆盖
+
+#include<iostream>
+#include<cmath>
+#include<algorithm>
+using namespace std;
+const int N = 100010;
+const double eps = 1e-8,PI = acos(-1);	//会用到的常数
+#define x first		//方便用pair
+#define y second
+typedef pair<double,double> PDD;
+struct Circle{		//存圆
+	PDD o;		//圆心o
+	double r;	//半径r
+}c;
+
+PDD p[N];	//p来存点
+int n;
+
+PDD operator+(PDD a,PDD b)	//重在运算符+，方便pair运算
+{
+	return {a.x+b.x, a.y+b.y};
+}
+
+PDD operator-(PDD a,PDD b)
+{
+	return {a.x-b.x, a.y-b.y};
+}
+
+double operator*(PDD a,PDD b)	//叉乘
+{
+	return a.x*b.y - a.y*b.x;	//x1*y2 - x2*y1
+}
+
+PDD operator*(PDD a,double b)	//数乘
+{
+	return {a.x*b, a.y*b};
+}
+
+PDD operator/(PDD a,double b)
+{
+	return {a.x/b, a.y/b};
+}
+
+int judge(double a,double b)	//两个double数比大小，相等返回0，小于返回-1，大于返回1
+{
+	if(fabs(a-b) < eps)
+		return 0;
+	if(a < b)
+		return -1;
+	return 1;
+}
+
+PDD rotate(PDD a,double b)	//向量a旋转b°后的向量，基础知识中有证明
+{
+	return {a.x*cos(b)+a.y*sin(b), -a.x*sin(b)+a.y*cos(b)};
+}
+
+double lens(PDD a,PDD b)	//求两点距离
+{
+	double dx = a.x - b.x;
+	double dy = a.y - b.y;
+	return sqrt(dx*dx + dy*dy);	//根号下x方加y方
+}
+
+PDD intersection(PDD p,PDD v,PDD q,PDD w)	//求两直线交点，详见基础知识
+{
+	PDD u = p - q;
+	double t = w*u / (v*w);
+	return p + v*t;
+}
+
+pair<PDD,PDD> bisector(PDD a,PDD b)	//求两点中垂线
+{
+	PDD p = (a+b) / 2;	//先求出a和b连线的中点，就是横纵坐标和的一半
+	PDD v = rotate(b-a,PI/2);	//然后求ab向量旋转90°的向量
+	return {p,v};		//就有了直线上一点p和一个向量v，根据点向式可以写出一条直线方程
+}
+
+Circle circle(PDD a,PDD b,PDD c)	//已知三点，求外接圆
+{
+	auto n = bisector(a,b),m = bisector(a,c);	//先求出两个边的中垂线
+	PDD o = intersection(n.x,n.y,m.x,m.y);	//然后求两中垂线交点就是圆心o
+	double r = lens(o,a);	//求出oa长度就是半径
+	return {o,r};		//返回圆心和半径
+}
+
+int main()
+{
+	cin >> n;
+	for(int i = 0;i < n;i++)
+		cin >> p[i].x >> p[i].y;	//输入个点
+	
+	random_shuffle(p,p+n);		//随机化p
+	c = {p[0],0};			//初始化圆为p[0]
+	for(int i = 1;i < n;i++)	//第一次循环
+	{
+		if(judge(c.r,lens(c.o,p[i])) == -1)	//如果p[i]在圆外
+		{
+			c = {p[i],0};			//初始化圆为p[i]
+			for(int j = 0;j < i;j++)	//第二层循环
+			{
+				if(judge(c.r,lens(c.o,p[j])) == -1)	//如果p[j]在圆外
+				{
+					c = {(p[i]+p[j])/2,lens(p[i],p[j])/2};	//初始化圆为p[i]和p[j]为直径的圆
+					for(int k = 0;k < j;k++)	//第三层循环
+					{
+						if(judge(c.r,lens(c.o,p[k])) == -1)	//如果p[k]在圆外
+							c = circle(p[i],p[j],p[k]);		//i、j、k三点求一个唯一的圆
+					}
+				}
+			}
+		}
+	}
+	printf("%.10lf\n",c.r);		//输出圆半径
+	printf("%.10lf %.10lf\n",c.o.x,c.o.y);	//输出圆心坐标
+
+	return 0;
+}

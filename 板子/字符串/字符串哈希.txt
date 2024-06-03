@@ -1,0 +1,16 @@
+//字符哈希
+
+ull has[maxn], pos[maxn];
+//char s[maxn];
+string s;
+ull calc(int l, int r) {
+	return(has[r] - has[l - 1] * pos[r - l + 1]);
+}
+
+void solve() {
+	cin >> n;
+	cin >> s; s = '#' + s;
+	for (int i = 1; i <= n; i++)has[i] = has[i - 1] * base + s[i] - 'a';
+	pos[0] = 1;
+	for (int i = 1; i <= n; i++)pos[i] = pos[i - 1] * base;
+}

@@ -1,0 +1,21 @@
+//dij
+
+int n, m;
+int dis[maxn], vis[maxn];
+void dij() {
+	priority_queue<PII,vector<PII>,greater<PII>>q;
+	q.push({ 0,1 });
+	dis[1] = 0;
+	while (!q.empty()) {
+		int u = q.top().second; q.pop();
+		if (vis[u])continue;
+		vis[u] = 1;
+		for (int i = head[u]; i; i = e[i].next) {
+			int v = e[i].to, w = e[i].w;
+			if (dis[v] > dis[u] + w) {
+				dis[v] = dis[u] + w;
+				q.push({ dis[v],v });
+			}
+		}
+	}
+}

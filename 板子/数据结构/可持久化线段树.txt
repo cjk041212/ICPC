@@ -1,0 +1,100 @@
+//可持久化线段树
+
+//单点修改，单点查询
+int n, m, a[maxn];
+int root[maxn], trtot;
+int ls[maxn * 25], rs[maxn * 25], val[maxn * 25];
+
+void build(int& u, int l, int r) {
+    u = ++trtot;
+    if (l == r) { val[u] = a[l]; return; }
+    int mid = (l + r) / 2;
+    build(ls[u], l, mid);
+    build(rs[u], mid + 1, r);
+}
+
+void update(int& u, int v, int l, int r, int p, int x) {
+    u = ++trtot;
+    ls[u] = ls[v]; rs[u] = rs[v]; val[u] = val[v];
+    if (l == r) { val[u] = x; return; }
+    int mid = (l + r) / 2;
+    if (p <= mid)update(ls[u], ls[v], l, mid, p, x);
+    else update(rs[u], rs[v], mid + 1, r, p, x);
+}
+
+int query(int u, int l, int r, int p) {
+    if (l == r)return val[u];
+    int mid = (l + r) / 2;
+    if (p <= mid)return query(ls[u], l, mid, p);
+    else return query(rs[u], mid + 1, r, p);
+}
+
+void solve() {
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++)cin >> a[i];
+    build(root[0], 1, n);
+    for (int i = 1; i <= m; i++) {
+        int ver, op, p, x; cin >> ver >> op;
+        if (op == 1) {
+            cin >> p >> x;
+            update(root[i], root[ver], 1, n, p, x);
+        }
+        else {
+            cin >> p;
+            root[i] = root[ver];
+            cout << query(root[ver], 1, n, p) << "\n";
+        }
+    }
+}
+
+//区间修改单点查询
+int n, m, a[maxn];
+int root[maxn], trtot;
+int ls[maxn * 25], rs[maxn * 25], tr[maxn * 25];
+
+void build(int& u, int l, int r) {
+    u = ++trtot;
+    if (l == r) { tr[u] = a[l]; return; }
+    int mid = (l + r) / 2;
+    build(ls[u], l, mid);
+    build(rs[u], mid + 1, r);
+}
+
+void update(int& u, int v, int l, int r, int ql, int qr, int x) {
+    u = ++trtot;
+    ls[u] = ls[v]; rs[u] = rs[v]; tr[u] = tr[v];
+    if (ql <= l && r <= qr) { tr[u] += x; return; }
+    int mid = (l + r) / 2;
+    if (ql <= mid)update(ls[u], ls[v], l, mid, ql, qr, x);
+    if (qr > mid)update(rs[u], rs[v], mid + 1, r, ql, qr, x);
+}
+
+int query(int u, int l, int r, int p) {
+    if (l == r)return tr[u];
+    int mid = (l + r) / 2;
+    if (p <= mid)return tr[u]+query(ls[u], l, mid, p);
+    else return tr[u]+query(rs[u], mid + 1, r, p);
+}
+
+void solve() {
+    cin >> n >> m;
+    for (int i = 1; i <= m; i++) {
+        int op; cin >> op;
+        if (op) {
+            int p; cin >> p;
+            root[i] = root[i - 1];
+            ll now = query(root[i], 1, n, p);
+            int l = 0, r = i - 1;
+            while (l < r) {
+                int mid = (l + r) / 2;
+                if (query(root[mid], 1, n, p) * 2 >= now)r = mid;
+                else l = mid + 1;
+            }
+            cout << i - l << "\n";
+        }
+        else {
+            int l, r, w; cin >> l >> r >> w;
+            update(root[i], root[i - 1], 1, n, l, r, w);
+        }
+    }
+}

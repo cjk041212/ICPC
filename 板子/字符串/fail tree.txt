@@ -1,0 +1,24 @@
+//fail tree
+
+cin >> s;n = s.size();
+s = "&" + s;
+fa[0][0] = fa[1][0] = 0;
+dep[0] = 0, dep[1] = 1;
+for (int i = 2, j = 0; i <= n; i++) {
+	while (j != 0 && s[j + 1] != s[i])j = fa[j][0];
+	if (s[j + 1] == s[i])j++;
+	fa[i][0] = j; dep[i] = dep[j] + 1;
+}
+for (int i = 1; i <= 21; i++)
+	for (int j = 1; j <= n; j++)
+		fa[j][i] = fa[fa[j][i - 1]][i - 1];
+cin >> m;
+while (m--) {
+	int x, y; cin >> x >> y;
+	if (dep[x] < dep[y])swap(x, y);
+	for (int i = 21; i >= 0; i--)
+		if (dep[fa[x][i]] >= dep[y])x = fa[x][i];
+	for (int i = 21; i >= 0; i--)
+		if (fa[x][i] != fa[y][i])x = fa[x][i], y = fa[y][i];
+	cout << fa[x][0] << endl;
+}

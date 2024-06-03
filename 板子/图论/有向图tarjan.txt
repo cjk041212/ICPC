@@ -1,0 +1,30 @@
+//有向图tarjan
+
+int dfn[maxn], low[maxn], sta[maxn];
+bool vis[maxn];
+int idx[maxn], tscc;
+int cnt[maxn];
+ll sum[maxn];
+void tarjan(int x) {
+	low[x] = dfn[x] = ++dfn[0];
+	vis[x] = 1; sta[++sta[0]] = x;
+	for (int i = head[x]; i; i = e[i].next) {
+		int v = e[i].to;
+		if (!dfn[v]) {
+			tarjan(v);
+			low[x] = min(low[x], low[v]);
+		}
+		else if (vis[v]) {
+			low[x] = min(low[x], dfn[v]);
+		}
+	}
+	if (low[x] == dfn[x]) {
+		int y; ++tscc; sum[tscc] = 1;
+		do {
+			y = sta[sta[0]--]; vis[y] = 0;
+			++cnt[tscc]; 
+			sum[tscc] = sum[tscc] * ((1 - p[y] + mod) % mod) % mod;
+			idx[y] = tscc;
+		} while (y != x);
+	}
+}

@@ -1,0 +1,97 @@
+//左偏树
+
+struct Node {
+	int ch[2], d;
+	ll val, mul, add;
+	Node() {
+		ch[0] = ch[1] = add = 0;
+		d = mul = 1;
+	}
+} t[maxn];
+
+
+void madd(int u, ll x) {
+	t[u].val += x;
+	t[u].add += x;
+}
+
+void mmul(int u,ll x){
+	t[u].val *= x;
+	t[u].add *= x;
+	t[u].mul *= x;
+}
+
+void pushdown(int x) {
+	mmul(t[x].ch[0], t[x].mul);
+	madd(t[x].ch[0], t[x].add);
+	mmul(t[x].ch[1], t[x].mul);
+	madd(t[x].ch[1], t[x].add);
+	t[x].mul = 1; t[x].add = 0;
+}
+
+int merge(int x, int y) {
+	if (!x || !y) return x | y;
+	if (t[x].val > t[y].val) swap(x, y);
+	pushdown(x);
+	t[x].ch[1] = merge(t[x].ch[1], y);
+	if (t[t[x].ch[1]].d > t[t[x].ch[0]].d)swap(t[x].ch[1], t[x].ch[0]);
+	t[x].d = t[t[x].ch[1]].d + 1;
+	//t[x].sum = t[t[x].ch[0]].sum + t[t[x].ch[1]].sum + t[x].val;
+	//t[x].siz = t[t[x].ch[0]].siz + t[t[x].ch[1]].siz + 1;
+	return x;
+}
+
+int pop(int x) {
+	pushdown(x);
+	return merge(t[x].ch[0], t[x].ch[1]);
+}
+
+int fa[maxn];
+int find(int x) { return fa[x] == x ? x : fa[x] = find(fa[x]); }
+
+int modify(int x) {
+	t[x].val /= 2;
+	int rt = merge(t[x].ch[0], t[x].ch[1]);
+	t[x].ch[0] = t[x].ch[1] = t[x].d = 0;
+	return fa[rt] = fa[x] = merge(rt, x);
+}
+
+int p[maxn];
+int n, m, h[maxn], f[maxn], a[maxn], b[maxn],c[maxn];
+int dep[maxn], ans1[maxn], ans2[maxn];
+void dfs(int u) {
+	for (int i = head[u]; i; i = e[i].next) {
+		int v = e[i].to;
+		dep[v] = dep[u] + 1;
+		dfs(v);
+	}
+	while (p[u] && t[p[u]].val < h[u]) {
+		++ans1[u];
+		ans2[p[u]] = dep[c[p[u]]] - dep[u];
+		p[u] = pop(p[u]);
+	}
+	if (a[u])mmul(p[u], b[u]);
+	else madd(p[u], b[u]);
+	if (u > 1)p[f[u]] = merge(p[u], p[f[u]]);
+	else while (p[u]) {
+		ans2[p[u]] = dep[c[p[u]]] + 1;
+		p[u] = pop(p[u]);
+	}
+}
+
+void solve() {
+	cin >> n >> m;
+	for (int i = 1; i <= n; i++)cin >> h[i];
+	for (int i = 2; i <= n; i++) {
+		cin >> f[i];
+		addedge(f[i], i);
+		cin >> a[i] >> b[i];
+	}
+	for (int i = 1; i <= m; i++) {
+		cin >> t[i].val >> c[i];
+		p[c[i]] = merge(i, p[c[i]]);
+	}
+	dfs(1);
+	for (int i = 1; i <= n; i++)cout << ans1[i] << endl;
+	for (int i = 1; i <= m; i++)cout << ans2[i] << endl;
+}

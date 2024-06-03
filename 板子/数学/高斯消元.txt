@@ -1,0 +1,44 @@
+//高斯消元
+
+double a[300][300];//增广矩阵
+double x[300];//解集
+
+//a[0][0]*x[0]+a[0][1]*x[1]+……+a[0][n]*x[n]=a[0][n+1]
+//传入m不带常数大小
+int gauss(int n, int m) {
+    int c = 0, r;
+    for (r = 0; r < n && c < m; r++, c++) {
+        int maxr = r;
+        for (int i = r + 1; i < n; i++)if (abs(a[i][c]) > abs(a[maxr][c]))maxr = i;
+        if (maxr != r)swap(a[r], a[maxr]);
+        if (fabs(a[r][c]) < eps) {
+            r--;
+            continue;
+        }
+        for (int i = r + 1; i < n; i++)
+            if (fabs(a[i][c]) > eps) {
+                double k = a[i][c] / a[r][c];
+                for (int j = c; j <= m; j++)a[i][j] -= a[r][j] * k;
+                a[i][c] = 0;
+            }
+    }
+    for (int i = r; i < m; i++)if (fabs(a[i][c]) > eps)return -1; // 无解
+    if (r < m)return m - r; // 返回自由元个数
+    for (int i = m - 1; i >= 0; i--) {
+        for (int j = i + 1; j < m; j++)a[i][m] -= a[i][j] * x[j];
+        x[i] = a[i][m] / a[i][i];
+    }
+    return 0; // 有唯一解
+}
+
+void solve()
+{
+    int n; cin >> n;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n + 1; j++)cin >> a[i][j];
+    int ans = gauss(n, n);
+    if (ans == -1)cout << "-1\n";
+    else if (ans == 0)
+        for (int i = 0; i < n; i++)cout << "x" << i + 1 << "=" << x[i] << endl;
+    else cout << 0 << endl;
+}

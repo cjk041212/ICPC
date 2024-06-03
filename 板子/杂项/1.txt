@@ -1,0 +1,66 @@
+#include<iostream>
+#include<algorithm>
+#include<string>
+#include<cstring>
+#include<vector>
+#include<queue>
+#include<stack>
+#include<unordered_map>
+#include<unordered_set>
+#include<map>
+#include<set>
+#include<cmath>
+#include<iomanip>
+#include <cassert>
+using namespace std;
+#define int long long
+//#define double long double
+#define lowbit(x) (x&(-x))
+
+typedef long long ll;
+typedef unsigned long long ull;
+typedef pair<int, int>PII;
+typedef pair<pair<int, int>, int>PIII;
+typedef map<int, int>::iterator it;
+
+const int dx[] = { 0,1,0,-1 };
+const int dy[] = { 1,0,-1,0 };
+const ull base = 131;
+const double PI = acos(-1.0);
+const double eps = 1e-8;
+const int mod = 19260817;
+const ll inf = 1e18;
+const int maxn = 1e6 + 10;
+const int N = 3e6 + 10;
+const int M = 2e6 + 10;
+
+ll ksm(ll x, ll p, ll m = mod) { ll res = 1; while (p) { if (p & 1)res = res * x; if (res >= m)res = res % m + m; x = x * x; if (x >= m)x = x % m + m; p /= 2; }return res; }
+ll gcd(ll a, ll b) { return b > 0 ? gcd(b, a % b) : a; }
+struct Edge {
+    int to, next;
+    ll w;
+}e[M];
+int tot, head[N];
+void addedge(int a, int b, ll c = 0) {
+    e[++tot].to = b;
+    e[tot].w = c;
+    e[tot].next = head[a];
+    head[a] = tot;
+}
+
+void solve() {
+
+}
+signed main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0); cout.tie(0);
+    //cout << fixed << setprecision(6);
+    int t = 1;
+    cin >> t;
+    int cas = 0;
+    //init();
+    while (t--) {
+        //cout << "Case #" << ++cas << ": ";
+        solve();
+    }
+}

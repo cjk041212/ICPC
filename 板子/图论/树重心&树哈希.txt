@@ -1,0 +1,103 @@
+//树重心&树哈希
+
+#include "bits/stdc++.h"
+ 
+using namespace std;
+using i64 = long long;
+ 
+using u64 = unsigned long long;
+
+const u64 mask = chrono::steady_clock::now().time_since_epoch().count();
+
+u64 shift(u64 x) {
+    x ^= mask;
+    x ^= x << 13;
+    x ^= x >> 7;
+    x ^= x << 17;
+    x ^= mask;
+    return x;
+}
+ 
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    
+    int m;
+    cin >> m;
+    vector<vector<u64>> h(m);
+    
+    for (int i = 0; i < m; i++) {
+        int n;
+        cin >> n;
+        vector<vector<int>> g(n + 1);
+        for (int j = 1; j <= n; j++) {
+            int u;
+            cin >> u;
+            if (u == 0) {
+                continue;
+            }
+            g[u].push_back(j);
+            g[j].push_back(u);
+        }
+        
+        auto getroot = [&]() {
+            int root1 = 0, root2 = 0;
+            vector<int> sz(n + 1), mx(n + 1);
+            mx[0] = 2E9;
+            function<void(int, int)> dfs = [&](int cur, int pre) {
+                sz[cur] = 1;
+                mx[cur] = 0;
+                for (auto nex : g[cur]) {
+                    if (nex != pre) {
+                        dfs(nex, cur);
+                        sz[cur] += sz[nex];
+                        mx[cur] = max(mx[cur], sz[nex]);
+                    }
+                }
+                mx[cur] = max(mx[cur], n - sz[cur]);
+                if (mx[cur] == mx[root1]) {
+                    root2 = cur;
+                }
+                if (mx[cur] < mx[root1]) {
+                    root1 = cur;
+                    root2 = 0;
+                }
+            };
+            dfs(1, 0);
+            return (pair<int, int>){root1, root2};
+        };
+        
+        auto TreeHash = [&](int root) {
+            function<u64(int, int)> dfs = [&](int cur, int pre) {
+                u64 H = 1;
+                for (auto &nex : g[cur]) {
+                    if (nex != pre) {
+                        H += shift(dfs(nex, cur));
+                    }
+                }
+                return H;
+            };
+            return dfs(root, 0);
+        };     
+
+        auto root = getroot();
+        auto h1 = TreeHash(root.first);
+        h[i].push_back(h1);
+        if (root.second) {
+            auto h2 = TreeHash(root.second);
+            h[i].push_back(h2);
+        }
+        sort(h[i].begin(), h[i].end());
+    }
+    
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j <= i; j++) {
+            if (h[i] == h[j]) {
+                cout << j + 1 << '\n';
+                break;
+            }
+        }
+    }
+    
+    return 0;
+}

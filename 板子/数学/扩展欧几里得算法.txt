@@ -1,0 +1,12 @@
+//扩展欧几里得算法
+
+ll exgcd(ll a, ll b, ll& x, ll& y) {
+	if (b == 0) { x = 1; y = 0; return a; }
+	ll d = exgcd(b, a % b, y, x);
+	y -= (a / b) * x;
+	return d;
+}
+/*通解
+x = x0 + (b/gcd)*t
+y = y0 – (a/gcd)*t (t∈Z)
+*/

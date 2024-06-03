@@ -1,0 +1,47 @@
+//差分约束
+
+//以xi - xj<=y 为约束条件，建图求最短路后得到的是最大解。所有的解都不大于且尽可能逼近dis[x0] 
+//以xi - xj>=y 为约束条件，建图求单源最长路得到最小解。
+
+//最短路
+int dis[maxn], vis[maxn], t[maxn];
+bool spfa(int s,int n) {
+	priority_queue<int, vector<int>,greater<int>>q;
+	for (int i = 0; i <= n; i++)
+		vis[i] = 0, dis[i] = 0x3f3f3f3f, t[i] = 0;
+	q.push(s);
+	vis[s] = 1; dis[s] = 0; t[s] = 1;
+	while (!q.empty()) {
+		int u = q.top(); q.pop();
+		vis[u] = 0;
+		for (int i = head[u]; i; i = e[i].next) {
+			int v = e[i].to, w = e[i].w;
+			if (dis[v] > dis[u] + w) {
+				dis[v] = dis[u] + w;
+				if (vis[v])continue;
+				vis[v] = 1;
+				q.push(v);
+				t[v]++;
+				if (t[v] > n)return 0;
+			}
+		}
+	}
+	return 1;
+}
+void solve() {
+	memset(head, 0, sizeof(head));
+	tot = 0;
+	int n, x, y; cin >> n >> x >> y;
+	for (int i = 1; i <= x; i++) {
+		int a, b, c; cin >> a >> b >> c;
+		addedge(a, b, c);
+	}
+	for (int i = 1; i <= y; i++) {
+		int a, b, c; cin >> a >> b >> c;
+		addedge(b, a, -c);
+	}
+	for (int i = 2; i <= n; i++)addedge(i, i - 1, 0);
+	if (!spfa(1, n))cout << -1 << "\n";
+	else if (dis[n] == 0x3f3f3f3f)cout << -2 << "\n";
+	else cout << dis[n] << "\n";
+}

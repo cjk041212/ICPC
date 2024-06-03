@@ -1,0 +1,46 @@
+//可持久化权值线段树
+
+int n, m, a[maxn],b[maxn];
+int root[maxn], trtot;
+int ls[maxn * 25], rs[maxn * 25], val[maxn * 25];
+
+void build(int& u, int l, int r) {
+    u = ++trtot;
+    if (l == r) { val[u] = a[l]; return; }
+    int mid = (l + r) / 2;
+    build(ls[u], l, mid);
+    build(rs[u], mid + 1, r);
+}
+
+void change(int& u, int v, int l, int r, int p) {
+    u = ++trtot;
+    ls[u] = ls[v]; rs[u] = rs[v]; val[u] = val[v] + 1;
+    if (l == r) { return; }
+    int mid = (l + r) / 2;
+    if (p <= mid)change(ls[u], ls[v], l, mid, p);
+    else change(rs[u], rs[v], mid + 1, r, p);
+}
+
+int query(int u, int v, int l, int r, int p) {
+    if (l == r)return l;
+    int mid = (l + r) / 2;
+    int s = val[ls[u]] - val[ls[v]];
+    if (s>=p)return query(ls[u], ls[v], l, mid, p);
+    else return query(rs[u], rs[v], mid + 1, r, p - s);
+}
+
+void solve() {
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++)cin >> a[i], b[i] = a[i];
+    sort(b + 1, b + 1 + n);
+    int bn = unique(b + 1, b + 1 + n) - b - 1;
+    for (int i = 1; i <= n; i++) {
+        int p = lower_bound(b + 1, b + bn + 1, a[i]) - b;
+        change(root[i], root[i - 1], 1, bn, p);
+    }
+    while (m--) {
+        int l, r, k; cin >> l >> r >> k;
+        int p = query(root[r], root[l - 1], 1, bn, k);
+        cout << b[p] << endl;
+    }
+}

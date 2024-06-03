@@ -1,0 +1,232 @@
+//圆方树
+
+#include<bits/stdc++.h>
+using namespace std;
+const int maxn=1e6+10;
+int n,m,q;
+struct E{
+	int to,next,val;
+}edge[maxn],edge2[maxn];
+
+int head[maxn],tot;
+int head2[maxn],tot2;
+
+void add(int from,int to,int val){
+	edge[++tot].to=to;
+	edge[tot].val=val;
+	edge[tot].next=head[from];
+	head[from]=tot;
+}
+
+void add2(int from,int to,int val){
+	edge2[++tot2].to=to;
+	edge2[tot2].val=val;
+	edge2[tot2].next=head2[from];
+	head2[from]=tot2;
+}
+
+int low[maxn],dfn[maxn],dfncnt,cnt;
+int fa[maxn],w[maxn],sum[maxn];
+
+void buildtree(int u,int v,int val){
+	cnt++;
+	int cursum=val,i=v;
+	while(i!=fa[u]){
+		sum[i]=cursum;
+		cursum+=w[i];
+		i=fa[i];
+	}
+	sum[cnt+n]=sum[u];
+	i=v;sum[u]=0;
+	int pw;
+	while(i!=fa[u]){
+		pw=min(sum[i],sum[cnt+n]-sum[i]);
+		add2(cnt+n,i,pw);
+		add2(i,cnt+n,pw);
+		i=fa[i];
+	}	
+}
+
+void tarjan(int u,int father){
+	dfn[u]=low[u]=++dfncnt;
+	for(int i=head[u];i;i=edge[i].next){
+		int v=edge[i].to;
+		if(!dfn[v]){
+			fa[v]=u;
+			w[v]=edge[i].val;
+			tarjan(v,u);
+			low[u]=min(low[u],low[v]);
+		}
+		else if(v!=father)low[u]=min(low[u],dfn[v]);
+		if(low[v]>dfn[u]){
+			add2(u,v,edge[i].val);
+			add2(v,u,edge[i].val);
+		}
+	}
+	for(int i=head[u];i;i=edge[i].next){
+		int v=edge[i].to;
+		if(fa[v]==u||dfn[v]<=dfn[u])continue;
+		buildtree(u,v,edge[i].val);
+	}
+}
+
+int siz[maxn],dep[maxn],son[maxn],predep[maxn];
+void dfs1(int u,int father){
+	fa[u]=father;siz[u]=1;
+	for(int i=head2[u];i;i=edge2[i].next){
+		int v=edge2[i].to;
+		if(v==fa[u])continue;
+		dep[v]=dep[u]+1;
+		predep[v]=predep[u]+edge2[i].val;
+		dfs1(v,u);
+		siz[u]+=siz[v];
+		if(siz[v]>siz[son[u]])son[u]=v;
+	}
+}
+
+int top[maxn];
+void dfs2(int u,int tp){
+	top[u]=tp;
+	if(son[u])dfs2(son[u],tp);
+	for(int i=head2[u];i;i=edge2[i].next){
+		int v=edge2[i].to;
+		if(v==fa[u]||v==son[u])continue;
+		dfs2(v,v);
+	}
+}
+
+int lca(int x,int y){
+	while(top[x]!=top[y]){
+		if(dep[top[x]]<dep[top[y]])swap(x,y);
+		x=fa[top[x]];
+	}
+	if(dep[x]>dep[y])swap(x,y);
+	return x;
+}
+
+int find(int x,int rt){
+	int res;
+	while(top[x]!=top[rt]){
+		res=top[x];
+		x=fa[top[x]];
+	}
+	if(x==rt)return res;
+	else return son[rt];
+}
+
+int solve(int x,int y,int lca){
+	if(lca<=n)return predep[x]+predep[y]-2*predep[lca];
+	else{
+		int X=find(x,lca),Y=find(y,lca);
+		int ans=predep[x]-predep[X]+predep[y]-predep[Y];
+		if(sum[X]<sum[Y])swap(X,Y);
+		int Min=min(sum[X]-sum[Y],sum[lca]-sum[X]+sum[Y]);
+		return ans+Min;
+	}
+}
+
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cin>>n>>m>>q;
+	for(int i=0;i<m;i++){
+		int u,v,w;cin>>u>>v>>w;
+		add(u,v,w);add(v,u,w);
+	}
+	tarjan(1,0);
+	dfs1(1,0);
+	dfs2(1,1);
+	while(q--){
+		int x,y;cin>>x>>y;
+		int LCA=lca(x,y);
+		cout<<solve(x,y,LCA)<<endl;
+	}
+}
+
+
+//第两种圆方树建法
+#include<iostream>
+using namespace std;
+const int N=1e6+5,M=4e6+5;
+
+int n,m,ts,tp,tot;
+int dfn[N],low[N],st[N],dep[N],top[N],sz[N],son[N],fa[N];
+struct Graph{
+    int cnt,head[N],nxt[M],to[M];
+    void link(int u,int v){
+        nxt[++cnt]=head[u];to[cnt]=v;head[u]=cnt;
+        nxt[++cnt]=head[v];to[cnt]=u;head[v]=cnt;
+    }
+}G,T;
+void tarjan(int u){
+    dfn[u]=low[u]=++ts;st[++tp]=u;
+    for(int i=G.head[u];i;i=G.nxt[i]){
+        int v=G.to[i];
+        if(!dfn[v]){
+            tarjan(v);
+            low[u]=min(low[u],low[v]);
+            if(low[v]>=dfn[u]){
+                T.link(++tot,u);
+                int x=0;
+                do{
+                    x=st[tp--];
+                    T.link(tot,x);
+                }while(x!=v);
+            }
+        }
+        else low[u]=min(low[u],dfn[v]);
+    }
+}
+
+void dfs1(int u){
+    sz[u]=1;
+    for(int i=T.head[u];i;i=T.nxt[i]){
+        int v=T.to[i];
+        if(v==fa[u])continue;
+        dep[v]=dep[u]+1;
+        fa[v]=u;
+        dfs1(v);
+        sz[u]+=sz[v];
+        if(sz[v]>sz[son[u]])son[u]=v;
+    }
+}
+void dfs2(int u,int Tp){
+    top[u]=Tp;
+    if(son[u])dfs2(son[u],Tp);
+    for(int i=T.head[u];i;i=T.nxt[i]){
+        int v=T.to[i];
+        if(v==son[u]||v==fa[u])continue;
+        dfs2(v,v);
+    }
+}
+int Query(int x,int y){
+    while(top[x]!=top[y]){
+        if(dep[top[x]]<dep[top[y]])swap(x,y);
+        x=fa[top[x]];
+    }
+    return dep[x]<dep[y]?x:y;
+}
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cin>>n>>m;
+	tot=n;
+    for(int i=0;i<m;i++){
+        int u,v;
+        cin>>u>>v;
+        G.link(u,v);
+    }
+    tarjan(1);
+    dep[1]=1;
+    dfs1(1);
+    dfs2(1,1);
+    
+    int q;cin>>q;
+    while(q--){
+    	int u,v,lca;
+        cin>>u>>v;
+        lca=Query(u,v);
+    	cout<<(dep[u]+dep[v]-2*dep[lca])/2+1<<endl;
+    }
+    return 0;
+}

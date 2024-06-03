@@ -1,0 +1,12 @@
+//高精度快读取模
+
+inline ll read(ll m) {
+    register ll x = 0, f = 0; char ch = getchar();
+    while (!isdigit(ch)) ch = getchar();
+    while (isdigit(ch)) {
+        x = x * 10 + ch - '0';
+        if (x >= m) f = 1;
+        x %= m; ch = getchar();
+    }
+    return x + (f == 1 ? m : 0);
+}

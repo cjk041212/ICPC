@@ -1,0 +1,14 @@
+//线性求逆元
+
+//1-n的逆元
+inv[1] = 1;
+for (int i = 2; i <= n; ++i) {
+  inv[i] = (long long)(mod - mod / i) * inv[mod % i] % mod;
+}
+
+//n个数的逆元
+s[0] = 1;
+for (int i = 1; i <= n; ++i) s[i] = s[i - 1] * a[i] % mod;
+sv[n] = ksm(s[n], mod - 2);
+for (int i = n; i >= 1; --i) sv[i - 1] = sv[i] * a[i] % mod;
+for (int i = 1; i <= n; ++i) inv[i] = sv[i] * s[i - 1] % mod;

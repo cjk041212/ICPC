@@ -1,0 +1,29 @@
+//容斥定理
+
+//可视的树，求区间1-n有多少数和i互质
+ll solve(ll x, ll y) {
+    vector<ll>p;
+    for (ll i = 2; i * i <= y; i++) {
+        if (y % i == 0)p.push_back(i);
+        while (y % i == 0)y /= i;
+    }
+    if (y != 1)p.push_back(y);
+    int cnt = p.size();
+    ll ans = 0;
+    for (ll i = 0; i < (1ll << cnt); i++) {
+        ll cntt = 0, pp = 1;
+        for (ll j = 0; j < cnt; j++)
+            if (i & (1ll << j))cntt++, pp *= p[j];
+        if (cntt & 1)ans -= x / pp;
+        else ans += x / pp;
+    }
+    return ans;
+}
+
+void solve() {
+    int n, m; cin >> n >> m;
+    ll ans = 0;
+    for (int i = 1; i <= m; i++)
+        ans += solve(n, i);
+    cout << ans << endl;
+}

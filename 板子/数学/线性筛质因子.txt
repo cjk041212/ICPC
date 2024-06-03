@@ -1,0 +1,14 @@
+//线性筛质因子
+
+ll g[maxn], n;//g存最小质因子
+bool not_prime[maxn];
+vector<ll>pri;
+void euler() {
+	for (ll i = 2; i <= n; i++) {
+		if (!not_prime[i])pri.push_back(i), g[i] = i;
+		for (int j = 0; j < pri.size() && pri[j] * i <= n; j++) {
+			not_prime[pri[j] * i] = true; g[pri[j] * i] = pri[j];
+			if (i % pri[j] == 0)break;
+		}
+	}
+}
